@@ -1,65 +1,54 @@
-// src/components/WalletConnect.jsx
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
-const WalletConnect = ({ onWalletConnect }) => {
-  const [address, setAddress] = useState(null);
+function WalletConnect() {
+  const [walletAddr, setWalletAddr] = useState(null);
 
-  const connectWallet = async () => {
-    try {
-      if (!window.arweaveWallet) {
-        alert('ArConnect is not installed. Please install it to continue.');
-        return;
-      }
-
-      await window.arweaveWallet.connect(['ACCESS_ADDRESS', 'SIGN_TRANSACTION']);
-      const addr = await window.arweaveWallet.getActiveAddress();
-      setAddress(addr);
-      onWalletConnect(addr);
-    } catch (err) {
-      console.error('Wallet connection error:', err);
-    }
-  };
-
-  const disconnectWallet = () => {
-    setAddress(null);
-    onWalletConnect('');
-  };
-
+  // Check if already connected
   useEffect(() => {
-    if (window.arweaveWallet) {
-      window.arweaveWallet.getActiveAddress().then(addr => {
-        if (addr) {
-          setAddress(addr);
-          onWalletConnect(addr);
-        }
-      });
-    }
+    const stored = localStorage.getItem("wallet");
+    if (stored) setWalletAddr(stored);
   }, []);
 
+  const connectWallet = async () => {
+    if (!window.arweaveWallet) {
+      alert("Please install ArConnect extension.");
+      return;
+    }
+
+    try {
+      await window.arweaveWallet.connect(["ACCESS_ADDRESS", "SIGN_TRANSACTION"]);
+      const addr = await window.arweaveWallet.getActiveAddress();
+      setWalletAddr(addr);
+      localStorage.setItem("wallet", addr);
+    } catch (err) {
+      console.error("Wallet connect error:", err);
+    }
+  };
+
+  const disconnect = () => {
+    localStorage.removeItem("wallet");
+    setWalletAddr(null);
+  };
+
   return (
-    <div className="flex justify-between items-center p-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg text-white">
-      {address ? (
-        <div className="flex items-center gap-4">
-          <span className="text-sm">
-            Connected: <span className="font-mono">{address.slice(0, 5)}...{address.slice(-4)}</span>
-          </span>
-          <button
-            onClick={disconnectWallet}
-            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm font-semibold"
-          >
+    <div>
+      {walletAddr ? (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600 truncate max-w-[150px]">{walletAddr}</span>
+          <button onClick={disconnect} className="text-xs text-red-500 hover:underline">
             Disconnect
           </button>
         </div>
       ) : (
         <button
           onClick={connectWallet}
-          className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl font-semibold"
+          className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700"
         >
           Connect Wallet
         </button>
       )}
     </div>
   );
-};
+}
 
 export default WalletConnect;

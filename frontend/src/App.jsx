@@ -1,17 +1,22 @@
-import { useState } from 'react'
-import WalletConnect from './components/WalletConnect'
-import UploadForm from './components/UploadForm'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import UploadPage from "./pages/UploadPage";
+import DownloadPage from "./pages/DownloadPage";
+import Sidebar from "./components/Sidebar";
 
 function App() {
-  const [walletAddr, setWalletAddr] = useState('')
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
-      <h1 className="text-4xl font-bold mb-6">Vanishing Vault 🔐</h1>
-      <WalletConnect onWalletConnect={setWalletAddr} />
-      {walletAddr && <UploadForm walletAddr={walletAddr} />}
-    </div>
-  )
+    <Router>
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-1 bg-gray-50 p-6 min-h-screen">
+          <Routes>
+            <Route path="/" element={<UploadPage />} />
+            <Route path="/download" element={<DownloadPage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
+  );
 }
 
-export default App
+export default App;
