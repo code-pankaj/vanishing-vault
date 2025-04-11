@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { encryptFile } from "../utils/crypto";
 import { formatBytes, getArPrice } from "../utils/helpers";
+import "./uploadPage.css";
 
 function UploadPage() {
   const [file, setFile] = useState(null);
@@ -58,34 +59,31 @@ function UploadPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow space-y-4">
-      <h2 className="text-xl font-bold">Upload File to Vanishing Vault</h2>
+    <div className="upload-container">
+      <h2 className="upload-title">Upload File to Vanishing Vault</h2>
 
-      <input type="file" onChange={handleFileChange} className="block w-full" />
+      <input type="file" onChange={handleFileChange} className="upload-input-file" />
       {file && (
-        <div className="text-sm text-gray-600">
+        <div className="upload-meta">
           Size: {formatBytes(file.size)} • Estimated Cost: <b>{price} AR</b>
         </div>
       )}
 
-      <label className="block">
+      <label className="upload-label">
         Expiry Time:
         <input
           type="datetime-local"
           value={expiry}
           onChange={(e) => setExpiry(e.target.value)}
-          className="w-full border mt-1 p-2 rounded"
+          className="upload-input-datetime"
         />
       </label>
 
-      <button
-        onClick={handleUpload}
-        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-      >
+      <button onClick={handleUpload} className="upload-btn">
         Upload & Encrypt
       </button>
 
-      {status && <p className="text-sm text-gray-700">{status}</p>}
+      {status && <p className="upload-status">{status}</p>}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./downloadPage.css";
 
 function DownloadPage() {
   const [txId, setTxId] = useState("");
@@ -10,12 +11,10 @@ function DownloadPage() {
     setDownloadLink(null);
 
     try {
-      // Fetch encrypted file
       const fileRes = await fetch(`https://arweave.net/${txId}`);
       if (!fileRes.ok) throw new Error("Failed to fetch file");
       const fileBuffer = await fileRes.arrayBuffer();
 
-      // Fetch encryption key
       const keyRes = await fetch(`http://localhost:5000/key/${txId}`);
       const keyJson = await keyRes.json();
 
@@ -27,8 +26,8 @@ function DownloadPage() {
       const keyBase64 = keyJson.key;
       const keyBytes = Uint8Array.from(atob(keyBase64), (c) => c.charCodeAt(0));
 
-      const iv = new Uint8Array(fileBuffer.slice(0, 12)); // First 12 bytes: IV
-      const encryptedContent = fileBuffer.slice(12); // Rest: actual content
+      const iv = new Uint8Array(fileBuffer.slice(0, 12));
+      const encryptedContent = fileBuffer.slice(12);
 
       const cryptoKey = await crypto.subtle.importKey(
         "raw",
@@ -55,31 +54,28 @@ function DownloadPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow space-y-4">
-      <h2 className="text-xl font-bold">Download & Decrypt</h2>
+    <div className="download-container">
+      <h2 className="download-title">Download & Decrypt</h2>
 
       <input
         type="text"
         placeholder="Enter Transaction ID"
         value={txId}
         onChange={(e) => setTxId(e.target.value)}
-        className="w-full border p-2 rounded"
+        className="download-input"
       />
 
-      <button
-        onClick={handleDownload}
-        className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-      >
+      <button onClick={handleDownload} className="download-btn">
         Fetch & Decrypt
       </button>
 
-      {status && <p className="text-sm text-gray-700">{status}</p>}
+      {status && <p className="download-status">{status}</p>}
 
       {downloadLink && (
         <a
           href={downloadLink}
           download={`vault-${Date.now()}`}
-          className="text-blue-600 hover:underline block mt-2"
+          className="download-link"
         >
           ⬇️ Click here to download
         </a>
